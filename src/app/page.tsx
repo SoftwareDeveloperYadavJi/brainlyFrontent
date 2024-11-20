@@ -1,101 +1,275 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useState } from 'react'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Brain, Bookmark, Tag, Share2, Lock, Menu } from 'lucide-react'
+import router from 'next/router'
+
+export default function LandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const handleLoginRedirect = () => {
+    router.push('/login') // Redirect to the /login page
+  }
+
+
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="min-h-screen bg-white text-gray-900">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Brain className="h-8 w-8 text-indigo-600" />
+              <span className="ml-2 text-xl font-bold">Second Brain</span>
+            </div>
+            <nav className="hidden md:block">
+              <ul className="flex space-x-8">
+                <li><a href="#features" className="text-gray-600 hover:text-indigo-600 transition-colors">Features</a></li>
+                <li><a href="#how-it-works" className="text-gray-600 hover:text-indigo-600 transition-colors">How It Works</a></li>
+                <li><a href="#testimonials" className="text-gray-600 hover:text-indigo-600 transition-colors">Testimonials</a></li>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+              </ul>
+            </nav>
+            <div className="hidden md:block">
+
+
+              <Link href="/login"><Button className="mr-4" >Get Started</Button></Link>
+
+            </div>
+            <div className="md:hidden">
+              <Button variant="ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                <Menu className="h-6 w-6" />
+              </Button>
+            </div>
+          </div>
         </div>
+      </header>
+
+      {isMenuOpen && (
+        <div className="md:hidden bg-white py-4 px-4 shadow-lg">
+          <ul className="flex flex-col items-start space-y-4">
+            <li><a href="#features" className="text-gray-600 hover:text-indigo-600 transition-colors">Features</a></li>
+            <li><a href="#how-it-works" className="text-gray-600 hover:text-indigo-600 transition-colors">How It Works</a></li>
+            <li><a href="#testimonials" className="text-gray-600 hover:text-indigo-600 transition-colors">Testimonials</a></li>
+            <li><Link href='/login'><Button  className="w-full">Log in</Button></Link></li>
+           
+
+          </ul>
+        </div>
+      )}
+
+      <main>
+        <section className="py-20 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
+          >
+            <h1 className="text-4xl font-bold mb-6">Your Social Media Content, Organized and Shareable</h1>
+            <p className="text-xl mb-8 text-gray-600">
+              Second Brain helps you save, manage, and share your social media content effortlessly.
+            </p>
+            <div className="flex justify-center space-x-4">
+              <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white">Get Started</Button>
+              <Button size="lg" variant="outline" className="text-indigo-600 border-indigo-600 hover:bg-indigo-50">Learn More</Button>
+            </div>
+          </motion.div>
+        </section>
+
+        <section id="features" className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { icon: <Bookmark className="h-8 w-8 text-indigo-600" />, title: "Save Posts", description: "Easily save posts with titles, descriptions, and content." },
+                { icon: <Tag className="h-8 w-8 text-indigo-600" />, title: "Organize with Tags", description: "Add custom tags to categorize and find your content quickly." },
+                { icon: <Share2 className="h-8 w-8 text-indigo-600" />, title: "Share Your Brain", description: "Publicly share selected content with a simple toggle." },
+                { icon: <Lock className="h-8 w-8 text-indigo-600" />, title: "Privacy Control", description: "Easily privatize content when you need to." },
+                { icon: <Brain className="h-8 w-8 text-indigo-600" />, title: "Your Second Brain", description: "Access your curated content anytime, anywhere." },
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="bg-white border-gray-200 hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2 text-gray-900">
+                        {feature.icon}
+                        <span>{feature.title}</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600">{feature.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center mb-12">How 'Share My Brain' Works</h2>
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <ol className="space-y-6">
+                  <motion.li
+                    className="flex items-start"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                  >
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-bold mr-4">1</span>
+                    <div>
+                      <h3 className="font-semibold mb-1">Save Your Content</h3>
+                      <p className="text-gray-600">Add posts, articles, and ideas to your Second Brain.</p>
+                    </div>
+                  </motion.li>
+                  <motion.li
+                    className="flex items-start"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-bold mr-4">2</span>
+                    <div>
+                      <h3 className="font-semibold mb-1">Organize and Tag</h3>
+                      <p className="text-gray-600">Categorize your content with custom tags for easy retrieval.</p>
+                    </div>
+                  </motion.li>
+                  <motion.li
+                    className="flex items-start"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                  >
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-bold mr-4">3</span>
+                    <div>
+                      <h3 className="font-semibold mb-1">Toggle Sharing</h3>
+                      <p className="text-gray-600">Choose which content to make public with a simple switch.</p>
+                    </div>
+                  </motion.li>
+                  <motion.li
+                    className="flex items-start"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                  >
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 font-bold mr-4">4</span>
+                    <div>
+                      <h3 className="font-semibold mb-1">Share Your Brain</h3>
+                      <p className="text-gray-600">Get a unique link to your public content to share with others.</p>
+                    </div>
+                  </motion.li>
+                </ol>
+              </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <img src="/placeholder.svg?height=400&width=400" alt="Share My Brain Illustration" className="w-full h-auto rounded-lg shadow-lg" />
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        <section id="testimonials" className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-center mb-12">What Our Users Say</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              {[
+                { name: "Alex Johnson", role: "Content Creator", content: "Second Brain has transformed how I manage my social media content. It's like having a personal assistant for my online presence." },
+                { name: "Sarah Lee", role: "Digital Marketer", content: "The ability to easily share curated content with my team and clients has been a game-changer. Second Brain streamlines my workflow incredibly." },
+              ].map((testimonial, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="bg-white border-gray-200 hover:shadow-md transition-shadow">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center space-x-4 mb-4">
+                        <Avatar>
+                          <AvatarFallback>{testimonial.name[0]}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-semibold">{testimonial.name}</p>
+                          <p className="text-sm text-gray-600">{testimonial.role}</p>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 italic">"{testimonial.content}"</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-20 bg-indigo-600 text-white">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl font-bold mb-6">Ready to Organize Your Online Content?</h2>
+            <p className="text-xl mb-8">Join thousands of content creators and social media enthusiasts who are already using Second Brain.</p>
+            <form className="flex flex-col md:flex-row gap-4 justify-center">
+              <Input type="email" placeholder="Enter your email" className="md:w-64 bg-white text-gray-900 border-transparent" />
+              <Button size="lg" className="bg-white text-indigo-600 hover:bg-indigo-50">Start Your Free Trial</Button>
+            </form>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      <footer className="bg-gray-100 py-12 text-gray-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Product</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">FAQ</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Company</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">About</a></li>
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Resources</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">Guides</a></li>
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">API Docs</a></li>
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">Community</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">Legal</h3>
+              <ul className="space-y-2">
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-indigo-600 transition-colors">Cookie Policy</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t border-gray-200 text-center">
+            <p>&copy; 2024 Second Brain. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
-  );
+  )
 }

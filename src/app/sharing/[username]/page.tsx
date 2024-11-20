@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { motion, useAnimationFrame } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,19 +11,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Lock, Search, Tag, Brain, Sparkles } from 'lucide-react'
 
-// Mock data for demonstration
-const mockSharedBrain = {
-  isShared: true,
-  username: 'johndoe',
-  avatar: 'https://github.com/shadcn.png',
-  posts: [
-    { id: 1, title: 'My First Thought', content: 'This is the content of my first thought...', tags: ['personal', 'ideas'] },
-    { id: 2, title: 'Interesting Article', content: 'I found this article really fascinating...', tags: ['tech', 'AI'] },
-    { id: 3, title: 'Project Idea', content: 'Here\'s an idea for a new project...', tags: ['project', 'innovation'] },
-    { id: 4, title: 'Book Review', content: 'Just finished reading an amazing book...', tags: ['personal', 'books'] },
-    { id: 5, title: 'Coding Tips', content: 'Some useful coding tips I learned today...', tags: ['tech', 'coding'] },
-    { id: 6, title: 'Future of AI', content: 'Thoughts on the future of artificial intelligence...', tags: ['tech', 'AI', 'future'] },
-  ]
+// Define types for the API response data
+interface Post {
+  _id: string
+  title: string
+  content: string
+  tags: string
+  link: string
+}
+
+interface BrainData {
+  brain: Post[]
 }
 
 const fadeInUp = {
@@ -32,28 +30,51 @@ const fadeInUp = {
   transition: { duration: 0.5 }
 }
 
-function capitalizeFirstLetter(string: string): string {
-    if (!string) return ''; // Check for an empty string
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
 export default function SharedBrainPage() {
   const params = useParams()
-  const [brainData, setBrainData] = useState(mockSharedBrain)
+  const [brainData, setBrainData] = useState<BrainData | null>(null) // Initially null while loading
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('all')
-
+  const [loading, setLoading] = useState(true) // For loading state
+  const [error, setError] = useState<string | null>(null) // For error handling
+  
   useEffect(() => {
-    setBrainData({ ...mockSharedBrain, username: params.username as string })
+    const fetchBrainData = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/sharing/${params.username}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch brain data')
+        }
+        const data: BrainData = await response.json()
+        setBrainData(data)
+      } catch (error: any) {
+        setError(error.message || 'Something went wrong')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBrainData()
   }, [params.username])
 
-  const filteredPosts = brainData.posts.filter(post => 
-    post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Loading...</p>
+      </div>
+    )
+  }
 
-  if (!brainData.isShared) {
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-red-500">{error}</p>
+      </div>
+    )
+  }
+
+  // Display a private brain message if the brain is not shared
+  if (brainData && brainData.brain.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
         <motion.div initial="initial" animate="animate" variants={fadeInUp}>
@@ -78,18 +99,17 @@ export default function SharedBrainPage() {
     )
   }
 
-  
+  // Render the shared brain
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
       <header className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-lg shadow-lg">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Avatar className="h-12 w-12">
-              <AvatarImage src={brainData.avatar} alt={brainData.username} />
-              <AvatarFallback>{brainData.username[0].toUpperCase()}</AvatarFallback>
+              {/* Replace with actual avatar image logic */}
+              <AvatarFallback>{params.username?.[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{capitalizeFirstLetter(brainData.username)}'s Second Brain</h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">Exploring thoughts and ideas</p>
             </div>
           </div>
@@ -123,10 +143,13 @@ export default function SharedBrainPage() {
             </Tabs>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredPosts
+              {brainData?.brain
+                .filter(post => post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                post.tags.toLowerCase().includes(searchTerm.toLowerCase()))
                 .filter(post => activeTab === 'all' || post.tags.includes(activeTab))
                 .map((post, index) => (
-                  <motion.div key={post.id} variants={fadeInUp} transition={{ delay: index * 0.1 }}>
+                  <motion.div key={post._id} variants={fadeInUp} transition={{ delay: index * 0.1 }}>
                     <Card className="h-full flex flex-col bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                       <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
@@ -134,7 +157,7 @@ export default function SharedBrainPage() {
                           <span>{post.title}</span>
                         </CardTitle>
                         <CardDescription>
-                          {post.tags.map((tag, index) => (
+                          {post.tags.split(' ').map((tag, index) => (
                             <span key={index} className="inline-flex items-center mr-2 px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-xs font-medium text-indigo-800 dark:text-indigo-200 rounded-full">
                               <Tag className="h-3 w-3 mr-1" />
                               {tag}
@@ -146,17 +169,26 @@ export default function SharedBrainPage() {
                         <p className="text-sm text-gray-600 dark:text-gray-300">{post.content.substring(0, 100)}...</p>
                       </CardContent>
                       <CardFooter>
+                      <a
+                        href={post.link.startsWith('http://') || post.link.startsWith('https://') ? post.link : `https://${post.link}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500"
+                      >
                         <Button variant="outline" size="sm" className="w-full">Read More</Button>
+                      </a>
+                        <a href=""></a>
+                        
                       </CardFooter>
                     </Card>
                   </motion.div>
                 ))}
             </div>
 
-            {filteredPosts.length === 0 && (
+            {brainData?.brain.length === 0 && (
               <motion.div initial="initial" animate="animate" variants={fadeInUp}>
-                <div className="text-center py-12">
-                  <p className="text-gray-600 dark:text-gray-400">No thoughts found. Try a different search term or category.</p>
+                <div className="text-center py-6">
+                  <p>No posts available in this brain.</p>
                 </div>
               </motion.div>
             )}

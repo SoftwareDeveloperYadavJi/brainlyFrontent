@@ -1,14 +1,65 @@
-'use client'
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function Settings() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Handle password update
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Check if new password and confirmation match
+    if (newPassword !== confirmPassword) {
+      setMessage("New password and confirmation do not match.");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("http://localhost:3001/user/changepassword", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`, // Assuming authentication uses a token
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("Password updated successfully.");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        setMessage(data.error || "Failed to update password.");
+      }
+    } catch (error) {
+      console.error("Error updating password:", error);
+      setMessage("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow">
@@ -30,23 +81,51 @@ export default function Settings() {
               <CardDescription>Update your account password</CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4">
+              <form className="space-y-4" onSubmit={handlePasswordUpdate}>
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="current-password">Current Password</Label>
-                  <Input id="current-password" type="password" placeholder="Enter your current password" />
+                  <Input
+                    id="current-password"
+                    type="password"
+                    placeholder="Enter your current password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="new-password">New Password</Label>
-                  <Input id="new-password" type="password" placeholder="Enter your new password" />
+                  <Input
+                    id="new-password"
+                    type="password"
+                    placeholder="Enter your new password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="grid w-full gap-1.5">
                   <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <Input id="confirm-password" type="password" placeholder="Confirm your new password" />
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    placeholder="Confirm your new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
                 </div>
+                {message && (
+                  <p className={`text-sm mt-2 ${message.includes("successfully") ? "text-green-600" : "text-red-600"}`}>
+                    {message}
+                  </p>
+                )}
               </form>
             </CardContent>
             <CardFooter>
-              <Button>Update Password</Button>
+              <Button type="submit" onClick={handlePasswordUpdate} disabled={loading}>
+                {loading ? "Updating..." : "Update Password"}
+              </Button>
             </CardFooter>
           </Card>
 
@@ -78,5 +157,5 @@ export default function Settings() {
         </div>
       </main>
     </div>
-  )
+  );
 }
