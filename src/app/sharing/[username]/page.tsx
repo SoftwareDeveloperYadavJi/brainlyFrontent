@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Lock, Search, Tag, Brain, Sparkles } from 'lucide-react'
+import PostDetailModal from '@/components/ui/PostDetailModal'  // Import the modal
 
 // Define types for the API response data
 interface Post {
@@ -37,14 +38,26 @@ export default function SharedBrainPage() {
   const [activeTab, setActiveTab] = useState('all')
   const [loading, setLoading] = useState(true) // For loading state
   const [error, setError] = useState<string | null>(null) // For error handling
-  
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null) // For the selected post to show in modal
+  const [isModalOpen, setIsModalOpen] = useState(false) // To track if modal is open or closed
+
   useEffect(() => {
     const fetchBrainData = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/sharing/${params.username}`)
+        const response = await fetch(`http://10.53.3.24:3001/sharing/${params.username}`)
+
+        if (response.status === 401) {
+          // Handle the case where the brain is private
+          throw new Error('This brain is private and not currently shared.')
+        } else if (response.status === 500) {
+          // Handle server errors
+          throw new Error('There was an error retrieving the brain data. Please try again later.')
+        }
+
         if (!response.ok) {
           throw new Error('Failed to fetch brain data')
         }
+
         const data: BrainData = await response.json()
         setBrainData(data)
       } catch (error: any) {
@@ -56,6 +69,16 @@ export default function SharedBrainPage() {
 
     fetchBrainData()
   }, [params.username])
+
+  const openModal = (post: Post) => {
+    setSelectedPost(post)
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setSelectedPost(null)
+  }
 
   if (loading) {
     return (
@@ -73,33 +96,6 @@ export default function SharedBrainPage() {
     )
   }
 
-  // Display a private brain message if the brain is not shared
-  if (brainData && brainData.brain.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
-        <motion.div initial="initial" animate="animate" variants={fadeInUp}>
-          <Card className="w-[350px] bg-white/10 backdrop-blur-lg border-0">
-            <CardHeader>
-              <CardTitle className="text-center text-white">Private Brain</CardTitle>
-              <CardDescription className="text-center text-gray-300">
-                This brain is not currently shared.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-              <Lock className="h-16 w-16 text-gray-400" />
-            </CardContent>
-            <CardFooter className="flex justify-center">
-              <p className="text-sm text-gray-400">
-                The owner of this brain has chosen to keep it private.
-              </p>
-            </CardFooter>
-          </Card>
-        </motion.div>
-      </div>
-    )
-  }
-
-  // Render the shared brain
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
       <header className="bg-white/30 dark:bg-gray-800/30 backdrop-blur-lg shadow-lg">
@@ -144,13 +140,13 @@ export default function SharedBrainPage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {brainData?.brain
-                .filter(post => post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                post.tags.toLowerCase().includes(searchTerm.toLowerCase()))
+                .filter(post => post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  post.tags.toLowerCase().includes(searchTerm.toLowerCase()))
                 .filter(post => activeTab === 'all' || post.tags.includes(activeTab))
                 .map((post, index) => (
-                  <motion.div key={post._id} variants={fadeInUp} transition={{ delay: index * 0.1 }}>
-                    <Card className="h-full flex flex-col bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+                  <motion.div key={post._id} variants={fadeInUp} transition={{ delay: index * 0.1 }} onClick={() => openModal(post)}>
+                    <Card className="h-full flex flex-col bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300 cursor-pointer">
                       <CardHeader>
                         <CardTitle className="flex items-center space-x-2">
                           <Sparkles className="h-5 w-5 text-indigo-500" />
@@ -169,32 +165,18 @@ export default function SharedBrainPage() {
                         <p className="text-sm text-gray-600 dark:text-gray-300">{post.content.substring(0, 100)}...</p>
                       </CardContent>
                       <CardFooter>
-                      <a
-                        href={post.link.startsWith('http://') || post.link.startsWith('https://') ? post.link : `https://${post.link}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500"
-                      >
                         <Button variant="outline" size="sm" className="w-full">Read More</Button>
-                      </a>
-                        <a href=""></a>
-                        
                       </CardFooter>
                     </Card>
                   </motion.div>
                 ))}
             </div>
-
-            {brainData?.brain.length === 0 && (
-              <motion.div initial="initial" animate="animate" variants={fadeInUp}>
-                <div className="text-center py-6">
-                  <p>No posts available in this brain.</p>
-                </div>
-              </motion.div>
-            )}
           </motion.div>
         </div>
       </main>
+
+      {/* Modal */}
+      <PostDetailModal isOpen={isModalOpen} post={selectedPost} onClose={closeModal} />
     </div>
   )
 }
