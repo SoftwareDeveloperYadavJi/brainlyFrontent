@@ -44,7 +44,7 @@ export default function SharedBrainPage() {
   useEffect(() => {
     const fetchBrainData = async () => {
       try {
-        const response = await fetch(`http://10.53.3.24:3001/sharing/${params.username}`)
+        const response = await fetch(`http://localhost:3001/sharing/${params.username}`)
 
         if (response.status === 401) {
           // Handle the case where the brain is private

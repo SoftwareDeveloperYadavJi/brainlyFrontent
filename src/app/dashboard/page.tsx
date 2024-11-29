@@ -21,7 +21,7 @@ interface Content {
 }
 
 
-const logoutHande = ()=>{
+const logoutHande = () => {
   localStorage.removeItem('token')
   window.location.href = '/login'
 }
@@ -58,7 +58,7 @@ export default function Dashboard() {
   // Fetch current sharing status from the API
   const fetchSharingStatus = async () => {
     try {
-      const response = await fetch('http://10.53.3.24:3001/user/currentSharingStatus', {
+      const response = await fetch('http://localhost:3001/user/currentSharingStatus', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -80,7 +80,7 @@ export default function Dashboard() {
   // Fetch content from the backend API
   const fetchContent = async () => {
     try {
-      const response = await fetch('http://10.53.3.24:3001/user/getcontent', {
+      const response = await fetch('http://localhost:3001/user/getcontent', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -105,13 +105,13 @@ export default function Dashboard() {
 
     try {
       console.log(newContent);
-      const response = await fetch('http://10.53.3.24:3001/content/newbrain', {
+      const response = await fetch('http://localhost:3001/content/newbrain', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        
+
         body: JSON.stringify(newContent),
       })
 
@@ -136,7 +136,7 @@ export default function Dashboard() {
   // Toggle brain sharing
   const handleShareToggle = async (checked: boolean) => {
     try {
-      const response = await fetch('http://10.53.3.24:3001/user/braintoggle', {
+      const response = await fetch('http://localhost:3001/user/braintoggle', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -297,7 +297,7 @@ export default function Dashboard() {
                       <p className="text-sm text-gray-600">{content.content}</p>
                     </CardContent>
                     <CardContent className="flex-grow overflow-hidden text-ellipsis">
-                 
+
                       <p className="text-sm text-gray-600">{content.tags}</p>
                     </CardContent>
                     <CardFooter>

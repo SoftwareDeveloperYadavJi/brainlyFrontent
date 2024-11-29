@@ -30,7 +30,7 @@ export default function Settings() {
     setMessage("");
 
     try {
-      const response = await fetch("http://10.53.3.24:3001/user/changepassword", {
+      const response = await fetch("http://localhost:3001/user/changepassword", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

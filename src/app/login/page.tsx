@@ -39,8 +39,8 @@ export default function AuthPage() {
 
     try {
       const endpoint = isLogin
-        ? "http://10.53.3.24:3001/user/login"
-        : "http://10.53.3.24:3001/user/register"
+        ? "http://localhost:3001/user/login"
+        : "http://localhost:3001/user/register"
 
       // Construct the payload correctly based on whether it's login or registration
       const payload = isLogin
